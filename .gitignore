@@ -1,0 +1,4 @@
+__pycache__/
+python/_crypto.c
+*.o
+*.so
