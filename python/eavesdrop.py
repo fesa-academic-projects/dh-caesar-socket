@@ -2,14 +2,16 @@
 
 Feed it the two public values read off Wireshark:
 
-    python3 python/eavesdrop.py 115 69            # G=17, N=127 by default
+    python3 python/eavesdrop.py 2 113                 # G=17, N=127 by default
     python3 python/eavesdrop.py 21 4 --g 7 --n 23
 """
 
 import argparse
 
 from _crypto import lib
-from channel import G_SLIDE, N_SLIDE
+from channel import decrypt
+
+G_SLIDE, N_SLIDE = 17, 127
 
 
 def discrete_log(g, n, target):
@@ -26,6 +28,7 @@ def main():
     ap.add_argument("r2", type=int, help="Bob's public value, from the capture")
     ap.add_argument("--g", type=int, default=G_SLIDE)
     ap.add_argument("--n", type=int, default=N_SLIDE)
+    ap.add_argument("--hex", help="ciphertext hex from the capture, to decrypt")
     args = ap.parse_args()
 
     x = discrete_log(args.g, args.n, args.r1)
@@ -37,7 +40,12 @@ def main():
     shift = lib.caesar_key_from_secret(k)
     print(f"recovered x = {x}")
     print(f"K = {k}, shift = {shift}")
-    print("the eavesdropper can now decrypt every message in the capture")
+
+    if args.hex:
+        data = bytes.fromhex(args.hex.replace(":", "").replace(" ", ""))
+        print(f"plaintext = {decrypt(data, shift).decode('utf-8', 'replace')!r}")
+    else:
+        print("the eavesdropper can now decrypt every message in the capture")
     return 0
 
 
