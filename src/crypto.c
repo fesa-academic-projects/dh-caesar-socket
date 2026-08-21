@@ -60,3 +60,24 @@ int dh_valid_public(u64 pub, u64 n, u64 q) {
   }
   return 1;
 }
+
+u8 caesar_key_from_secret(u64 secret) {
+  u8 k = 0;
+  int i;
+
+  for (i = 0; i < 8; i++)
+    k = (u8)(k + (u8)(secret >> (8 * i)));
+  return k;
+}
+
+void caesar_encrypt(const u8 *in, u8 *out, size_t n, u8 shift) {
+  size_t i;
+
+  for (i = 0; i < n; i++)
+    out[i] = (u8)(in[i] + shift); /* mod 256 is implicit in u8 */
+}
+
+/* Inverse in the cipher's own modulus: 256 - shift, truncated back to u8. */
+void caesar_decrypt(const u8 *in, u8 *out, size_t n, u8 shift) {
+  caesar_encrypt(in, out, n, (u8)(256 - shift));
+}

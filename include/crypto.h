@@ -19,4 +19,11 @@ u64 dh_default_g(void);
 /* Rejects 0, 1 and n-1. With q > 0 also checks the subgroup; q = 0 skips it. */
 int dh_valid_public(u64 pub, u64 n, u64 q);
 
+/* One-byte shift derived from K. A real system would use a KDF. */
+u8 caesar_key_from_secret(u64 secret);
+
+/* Caesar over bytes (mod 256): UTF-8 and binary safe. in == out is fine. */
+void caesar_encrypt(const u8 *in, u8 *out, size_t n, u8 shift);
+void caesar_decrypt(const u8 *in, u8 *out, size_t n, u8 shift);
+
 #endif // CRYPTO_H
