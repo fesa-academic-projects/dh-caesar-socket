@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #define DH_DEFAULT_N 0xFFFFFFFFFFFFFA43ULL /* 18446744073709550147 */
+#define DH_DEFAULT_Q 0x7FFFFFFFFFFFFD21ULL /* (N-1)/2 */
 #define DH_DEFAULT_G 4ULL
 
 /* 128-bit product: a * b overflows 64 bits before the remainder. */
@@ -49,6 +50,7 @@ u64 dh_private_key(u64 n) {
 
 u64 dh_default_n(void) { return DH_DEFAULT_N; }
 u64 dh_default_g(void) { return DH_DEFAULT_G; }
+u64 dh_default_q(void) { return DH_DEFAULT_Q; }
 
 /* Without this, an R2 of 1 forces K = 1 for any private key. */
 int dh_valid_public(u64 pub, u64 n, u64 q) {
