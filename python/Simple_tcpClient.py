@@ -12,7 +12,7 @@ import os
 from socket import *
 
 from _crypto import lib
-from channel import decrypt, encrypt
+from crypto import decrypt, encrypt
 from primes import is_prime_miller_rabin, is_safe_prime
 
 # Address of Bob. Override without editing the file:

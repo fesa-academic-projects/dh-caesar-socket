@@ -9,7 +9,7 @@ Feed it the two public values read off Wireshark:
 import argparse
 
 from _crypto import lib
-from channel import decrypt
+from crypto import decrypt
 
 G_SLIDE, N_SLIDE = 17, 127
 

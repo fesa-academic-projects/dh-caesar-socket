@@ -1,7 +1,7 @@
 """Reproduce the examples from the slides by calling into the C code."""
 
 from _crypto import lib
-from channel import G_EXAMPLE, G_SLIDE, N_EXAMPLE, N_SLIDE
+from crypto import G_EXAMPLE, G_SLIDE, N_EXAMPLE, N_SLIDE
 
 
 def exchange(g, n, x, y):

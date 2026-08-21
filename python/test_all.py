@@ -1,11 +1,15 @@
-"""End-to-end test: DH, cipher and socket."""
+"""End-to-end test: primality, Diffie-Hellman, Caesar and the socket pair."""
 
-import socket
-import threading
+import os
+import subprocess
+import sys
 import time
 
 from _crypto import lib
-from channel import G_SLIDE, N_SLIDE, Channel, decrypt, encrypt
+from crypto import G_SLIDE, N_SLIDE, decrypt, encrypt
+from primes import is_prime_fast, is_prime_miller_rabin, is_prime_sqrt
+
+HERE = os.path.dirname(os.path.abspath(__file__))
 
 
 def check_dh(g, n):
@@ -17,6 +21,13 @@ def check_dh(g, n):
     assert k1 == k2, (k1, k2)
     return k1
 
+
+# The three primality tests must agree on the same numbers.
+for n in (2, 3, 4, 97, 561, 1000003, 1000000):
+    expected = is_prime_fast(n)
+    assert is_prime_sqrt(n) == expected, n
+    assert is_prime_miller_rabin(n) == expected, n
+print("primality: three implementations agree")
 
 print("DH from the slides:", check_dh(G_SLIDE, N_SLIDE))
 print("DH 64-bit:", check_dh(lib.dh_default_g(), lib.dh_default_n()))
@@ -33,25 +44,19 @@ for shift in range(256):
     assert decrypt(encrypt(msg, shift), shift) == msg, shift
 print("caesar: ok across 256 shifts")
 
+# The real pair, over a real socket.
+env = dict(os.environ, HOST="127.0.0.1")
+server = subprocess.Popen(
+    [sys.executable, os.path.join(HERE, "Simple_tcpServer.py")],
+    stdout=subprocess.PIPE, text=True, env=env,
+)
+time.sleep(1)
+client = subprocess.run(
+    [sys.executable, os.path.join(HERE, "Simple_tcpClient.py")],
+    input="hello from the test\n", capture_output=True, text=True, env=env,
+)
+server_out = server.communicate(timeout=10)[0]
 
-def server():
-    with socket.socket() as srv:
-        srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        srv.bind(("127.0.0.1", 5099))
-        srv.listen(1)
-        conn, _ = srv.accept()
-        with conn:
-            channel = Channel(conn, g=G_SLIDE, n=N_SLIDE)
-            channel.handshake()
-            channel.send(channel.receive().upper())
-
-
-threading.Thread(target=server, daemon=True).start()
-time.sleep(0.3)
-
-with socket.socket() as sock:
-    sock.connect(("127.0.0.1", 5099))
-    channel = Channel(sock, g=G_SLIDE, n=N_SLIDE)
-    channel.handshake()
-    channel.send("secret message")
-    print(f"socket: {channel.receive()!r} (K={channel.secret}, shift={channel.shift})")
+assert "HELLO FROM THE TEST" in client.stdout, client.stdout + client.stderr
+assert "hello from the test" in server_out, server_out
+print("socket: client and server agreed on the key and the message")

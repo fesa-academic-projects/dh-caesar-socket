@@ -11,7 +11,7 @@
 from socket import *
 
 from _crypto import lib
-from channel import decrypt, encrypt
+from crypto import decrypt, encrypt
 from primes import is_prime_miller_rabin, is_safe_prime
 
 SERVER_PORT = 1300
