@@ -1,11 +1,14 @@
 """Client: connects, negotiates the key and sends encrypted lines."""
 
+import os
 import socket
 import sys
 
 from channel import G_SLIDE, N_SLIDE, Channel
 
-HOST, PORT = "127.0.0.1", 5000
+# Point HOST at the server VM address, e.g. HOST=192.168.122.10
+HOST = os.environ.get("HOST", "127.0.0.1")
+PORT = int(os.environ.get("PORT", 5000))
 
 
 def main():

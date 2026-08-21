@@ -1,11 +1,14 @@
 """Server: accepts one connection, negotiates the key and echoes in upper case."""
 
+import os
 import socket
 import sys
 
 from channel import G_SLIDE, N_SLIDE, Channel
 
-HOST, PORT = "127.0.0.1", 5000
+# 0.0.0.0 so the other VM can reach us; override with HOST/PORT env vars.
+HOST = os.environ.get("HOST", "0.0.0.0")
+PORT = int(os.environ.get("PORT", 5000))
 
 
 def main():
